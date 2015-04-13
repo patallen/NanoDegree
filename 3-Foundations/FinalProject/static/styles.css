@@ -32,3 +32,25 @@ body {
 .control {
 	height: 50%;
 }
+
+.menu-item-block{
+	border: 1px solid black;
+	overflow: hidden;
+
+}
+
+.menu-item-info {
+	margin: 10px 0;
+	float: left;
+	padding-left: 10px;
+	display: inline;
+}
+textarea {
+	width: 100%;
+	padding: 3px;
+	margin: 4px 0;
+}
+input[type=text]{
+	width: 100%;
+	margin: 4px 0;
+}

@@ -35,17 +35,17 @@ def viewRestaurants():
 
 @app.route('/restaurant/new/')
 def addRestaurant():
-    return "Create a new restaurant"
+    return render_template('newrestaurant.html')
 
 
-@app.route('/restaurant/<restaurant_id>/edit/')
+@app.route('/restaurant/<int:restaurant_id>/edit/')
 def editRestaurant(restaurant_id):
-    return "Edit existing restaurant"
+    return render_template('editrestaurant.html', restaurant=restaurants[restaurant_id])
 
 
-@app.route('/restaurant/<restaurant_id>/delete/')
+@app.route('/restaurant/<int:restaurant_id>/delete/')
 def deleteRestaurant(restaurant_id):
-    return "Delete a restaurant"
+    return render_template('deleterestaurant.html', restaurant=restaurants[restaurant_id])
 
 
 #####################################################
@@ -53,22 +53,22 @@ def deleteRestaurant(restaurant_id):
 #####################################################
 @app.route('/restaurant/<int:restaurant_id>/menu/')
 def viewMenu(restaurant_id):
-    return 'Show menu for restaurant with ID %d' % restaurant_id
+    return render_template('viewMenu.html', menuItems=items)
 
 
 @app.route('/restaurant/<int:restaurant_id>/menu/new/')
 def addMenuItem(restaurant_id):
-    return 'Add menu item for restaurant with ID %d' % restaurant_id
+    return render_template('newmenuitem.html', restaurant=restaurants[restaurant_id])
 
 
 @app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/edit/')
 def editMenuItem(restaurant_id, menu_id):
-    return 'Edit menu item with ID %d' % menu_id
+    return render_template('editmenuitem.html', item=item)
 
 
 @app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete/')
 def deleteMenuItem(restaurant_id, menu_id):
-    return 'Delete menu item with ID %d' % menu_id
+    return render_template('deletemenuitem.html', item=item)
 
 if __name__ == '__main__':
     app.secret_key = 'SECRETKEY'

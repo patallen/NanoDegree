@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="main">
-<h1>Are you sure you want to delete <em>{{ restaurant.name }}</em>?</h1>
+<h1>Are you sure you want to delete <em>{{ item.name }}</em>?</h1>
 <form action="#">
 	<input type="submit" value="Yes, delete it!"> <a href="{{ url_for('viewRestaurants') }}">No, Cancel</a>
 </form>

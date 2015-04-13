@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="main">
+<h1>Menu</h1>
+{% for i in menuItems %}
+<div class='restaurant-block'>
+	<div class="menu-item-info">
+		<div class="item-name">
+		{{ i.name }}
+		</div>
+		<div class="item-name">
+		{{ i.price }}
+		</div>
+		<div class="item-name">
+		{{ i.description }}
+		</div>
+	</div>
+	
+	<div class="controls">	
+	<a class="control" href="#">Edit</a>
+	<a class="control" href="#">Delete</a>
+</div>
+	
+</div>
+{% endfor %}
+</div>
+{% endblock %}

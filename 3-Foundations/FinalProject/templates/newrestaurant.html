@@ -1,4 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
-
+<div class="main">
+<h1>Create a Restaurant</h1>
+<form action="#">
+	<input type="text" name="restaurant_name" placeholder="What should we call it?">
+	<input type="submit" value="Create"> <a href="{{ url_for('viewRestaurants') }}">Cancel</a>
+</form>
+</div>
 {% endblock %}
