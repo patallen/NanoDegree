@@ -8,8 +8,8 @@
 		<a href="#">{{ r.name }}</a>
 	</div>
 	<div class="controls">	
-		<a class="control" href="#">Edit</a>
-		<a class="control" href="#">Delete</a>
+		<a class="control" href="{{ url_for('editRestaurant', restaurant_id=r.id) }}">Edit</a>
+		<a class="control" href="{{ url_for('deleteRestaurant', restaurant_id=r.id) }}">Delete</a>
 	</div>
 </div>
 {% endfor %}

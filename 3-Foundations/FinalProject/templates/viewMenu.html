@@ -2,6 +2,9 @@
 {% block content %}
 <div class="main">
 <h1>Menu</h1>
+{% if menuItems|length < 1 %}
+You currently have no menu items.
+{% else %}
 {% for i in menuItems %}
 <div class='restaurant-block'>
 	<div class="menu-item-info">
@@ -19,9 +22,9 @@
 	<div class="controls">	
 	<a class="control" href="#">Edit</a>
 	<a class="control" href="#">Delete</a>
-</div>
-	
+	</div>
 </div>
 {% endfor %}
+{% endif %}
 </div>
 {% endblock %}

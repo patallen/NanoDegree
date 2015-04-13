@@ -30,22 +30,44 @@ item =  {'name':'Cheese Pizza','description':'made with fresh cheese','price':'$
 @app.route('/')
 @app.route('/restaurants/')
 def viewRestaurants():
+    restaurants = session.query(Restaurant).all()
     return render_template('viewrestaurants.html', restaurants=restaurants)
 
 
-@app.route('/restaurant/new/')
+@app.route('/restaurant/new/', methods=['GET', 'POST'])
 def addRestaurant():
+    if request.method=='POST':
+        newRestaurant = Restaurant(name=request.form['restaurant_name'])
+        session.add(newRestaurant)
+        session.commit()
+        return redirect(url_for('viewRestaurants'))
     return render_template('newrestaurant.html')
 
 
-@app.route('/restaurant/<int:restaurant_id>/edit/')
+@app.route('/restaurant/<int:restaurant_id>/edit/', methods=['GET', 'POST'])
 def editRestaurant(restaurant_id):
-    return render_template('editrestaurant.html', restaurant=restaurants[restaurant_id])
+    restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+    if request.method=='POST':
+        restaurant.name=request.form['restaurant_name']
+        session.add(restaurant)
+        session.commit()
+        return redirect(url_for('viewRestaurants'))
+    return render_template('editrestaurant.html', restaurant=restaurant)
 
 
-@app.route('/restaurant/<int:restaurant_id>/delete/')
+@app.route('/restaurant/<int:restaurant_id>/delete/', methods=['GET', 'POST'])
 def deleteRestaurant(restaurant_id):
-    return render_template('deleterestaurant.html', restaurant=restaurants[restaurant_id])
+    restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+    if request.method=='POST':
+        itemsToDelete = session.query(MenuItem).filter_by(restaurant_id=restaurant.id)
+        # Delete all menu itmes associated with this restaurant
+        for i in itemsToDelete:
+            session.delete(i)
+        # Delete the restaurant
+        session.delete(restaurant)
+        session.commit()
+        return redirect(url_for('viewRestaurants'))
+    return render_template('deleterestaurant.html', restaurant=restaurant)
 
 
 #####################################################
