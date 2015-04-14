@@ -100,9 +100,14 @@ def editMenuItem(restaurant_id, menu_id):
     return render_template('editMenuItem.html', item=menuItem)
 
 
-@app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete/')
+@app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete/', methods=['GET', 'POST'])
 def deleteMenuItem(restaurant_id, menu_id):
-    return render_template('deletemenuitem.html', item=item)
+    menuItem = session.query(MenuItem).filter_by(id=menu_id).one()
+    if request.method=='POST':
+        session.delete(menuItem)
+        return redirect(url_for('viewMenu', restaurant_id=restaurant_id))
+
+    return render_template('deleteMenuItem.html', item=menuItem)
 
 if __name__ == '__main__':
     app.secret_key = 'SECRETKEY'
