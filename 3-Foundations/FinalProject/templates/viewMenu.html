@@ -2,7 +2,13 @@
 {% block content %}
 <div class="main">
 <h1>Menu</h1>
-<a href="{{ url_for('addMenuItem', restaurant_id=restaurant_id) }}">Add Menu Item...</a>
+<a href="{{ url_for('addMenuItem', restaurant_id=restaurant_id) }}">Add Menu Item...</a><br>
+{% with messages = get_flashed_messages() %}
+	{% for message in messages %}
+	{{ message }}
+	<br>
+	{% endfor %}
+{% endwith %}
 {% if menuItems|length < 1 %}
 You currently have no menu items.
 {% else %}

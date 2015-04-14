@@ -25,10 +25,11 @@ def viewRestaurants():
 
 @app.route('/restaurant/new/', methods=['GET', 'POST'])
 def addRestaurant():
-    if request.method=='POST':
+    if request.method == 'POST':
         newRestaurant = Restaurant(name=request.form['restaurant_name'])
         session.add(newRestaurant)
         session.commit()
+        flash('Restaurant created successufully')
         return redirect(url_for('viewRestaurants'))
     return render_template('newrestaurant.html')
 
@@ -36,10 +37,11 @@ def addRestaurant():
 @app.route('/restaurant/<int:restaurant_id>/edit/', methods=['GET', 'POST'])
 def editRestaurant(restaurant_id):
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
-    if request.method=='POST':
-        restaurant.name=request.form['restaurant_name']
+    if request.method == 'POST':
+        restaurant.name = request.form['restaurant_name']
         session.add(restaurant)
         session.commit()
+        flash('Restaurant edited successufully')
         return redirect(url_for('viewRestaurants'))
     return render_template('editrestaurant.html', restaurant=restaurant)
 
@@ -47,8 +49,9 @@ def editRestaurant(restaurant_id):
 @app.route('/restaurant/<int:restaurant_id>/delete/', methods=['GET', 'POST'])
 def deleteRestaurant(restaurant_id):
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
-    if request.method=='POST':
-        itemsToDelete = session.query(MenuItem).filter_by(restaurant_id=restaurant.id)
+    if request.method == 'POST':
+        itemsToDelete = session.query(MenuItem).filter_by(
+            restaurant_id=restaurant.id)
         # Delete all menu itmes associated with this restaurant
         for i in itemsToDelete:
             item = session.query(MenuItem).filter_by(id=i.id).one()
@@ -56,6 +59,7 @@ def deleteRestaurant(restaurant_id):
         # Delete the restaurant
         session.delete(restaurant)
         session.commit()
+        flash('Restaurant and its menu items deleted successufully')
         return redirect(url_for('viewRestaurants'))
     return render_template('deleterestaurant.html', restaurant=restaurant)
 
@@ -65,7 +69,8 @@ def deleteRestaurant(restaurant_id):
 #####################################################
 @app.route('/restaurant/<int:restaurant_id>/menu/')
 def viewMenu(restaurant_id):
-    menuItems = session.query(MenuItem).filter_by(restaurant_id=restaurant_id).all()
+    menuItems = session.query(MenuItem).filter_by(
+        restaurant_id=restaurant_id).all()
     return render_template('viewMenu.html', restaurant_id=restaurant_id, menuItems=menuItems)
 
 
@@ -81,6 +86,7 @@ def addMenuItem(restaurant_id):
                                restaurant_id=restaurant_id)
         session.add(newmenuitem)
         session.commit()
+        flash('Menu item created successufully')
         return redirect(url_for('viewMenu', restaurant_id=restaurant_id))
     return render_template('newMenuItem.html', restaurant=restaurant)
 
@@ -94,6 +100,7 @@ def editMenuItem(restaurant_id, menu_id):
         menuItem.description = request.form['menu_item_desc']
         session.add(menuItem)
         session.commit()
+        flash('Menu item edited successufully')
         return redirect(url_for('viewMenu', restaurant_id=restaurant_id))
     return render_template('editMenuItem.html', item=menuItem)
 
@@ -101,8 +108,9 @@ def editMenuItem(restaurant_id, menu_id):
 @app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete/', methods=['GET', 'POST'])
 def deleteMenuItem(restaurant_id, menu_id):
     menuItem = session.query(MenuItem).filter_by(id=menu_id).one()
-    if request.method=='POST':
+    if request.method == 'POST':
         session.delete(menuItem)
+        flash('Menu item deleted successufully')
         return redirect(url_for('viewMenu', restaurant_id=restaurant_id))
 
     return render_template('deleteMenuItem.html', item=menuItem)
@@ -119,7 +127,8 @@ def viewRestaurantsJSON():
 
 @app.route('/restaurant/<int:restaurant_id>/menu/JSON/')
 def viewMenuJSON(restaurant_id):
-    menuItems = session.query(MenuItem).filter_by(restaurant_id=restaurant_id).all()
+    menuItems = session.query(MenuItem).filter_by(
+        restaurant_id=restaurant_id).all()
     return jsonify(MenuItem=[i.serialize for i in menuItems])
 
 
@@ -127,7 +136,6 @@ def viewMenuJSON(restaurant_id):
 def viewMenuItemJSON(restaurant_id, menu_id):
     menuItem = session.query(MenuItem).filter_by(id=menu_id).one()
     return jsonify(MenuItem=menuItem.serialize)
-
 
 if __name__ == '__main__':
     app.secret_key = 'SECRETKEY'
