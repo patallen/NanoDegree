@@ -2,10 +2,10 @@
 {% block content %}
 <div class="main">
 <h1>Edit <em>{{ item.name }}</em></h1>
-<form action="#">
+<form action="{{ url_for('editMenuItem', restaurant_id=item.restaurant_id, menu_id=item.id) }}" method='POST'>
 	<input type="text" name="menu_item_name" value="{{ item.name }}"><br>
 	<input type="text" name="menu_item_price" value="{{ item.price }}"><br>
-	<textarea name="menu_item_name" placeholder="{{ item.description }}"></textarea><br>
+	<textarea name="menu_item_desc" placeholder="{{ item.description }}">{{ item.description }}</textarea><br>
 	<input type="submit" value="Edit"> <a href="{{ url_for('viewRestaurants') }}">Cancel</a>
 </form>
 </div>

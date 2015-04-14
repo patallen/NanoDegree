@@ -21,7 +21,7 @@ You currently have no menu items.
 	</div>
 	
 	<div class="controls">	
-		<a class="control" href="#">Edit</a>
+		<a class="control" href="{{ url_for('editMenuItem', restaurant_id=restaurant_id, menu_id=i.id) }}">Edit</a>
 		<a class="control" href="#">Delete</a>
 	</div>
 </div>
