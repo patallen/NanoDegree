@@ -95,8 +95,6 @@ def editMenuItem(restaurant_id, menu_id):
         session.add(menuItem)
         session.commit()
         return redirect(url_for('viewMenu', restaurant_id=restaurant_id))
-
-        
     return render_template('editMenuItem.html', item=menuItem)
 
 
@@ -108,6 +106,28 @@ def deleteMenuItem(restaurant_id, menu_id):
         return redirect(url_for('viewMenu', restaurant_id=restaurant_id))
 
     return render_template('deleteMenuItem.html', item=menuItem)
+
+
+#####################################################
+#              Routes for JSON endpoints            #
+#####################################################
+@app.route('/restaurants/JSON/')
+def viewRestaurantsJSON():
+    restaurants = session.query(Restaurant).all()
+    return jsonify(Restaurant=[r.serialize for r in restaurants])
+
+
+@app.route('/restaurant/<int:restaurant_id>/menu/JSON/')
+def viewMenuJSON(restaurant_id):
+    menuItems = session.query(MenuItem).filter_by(restaurant_id=restaurant_id).all()
+    return jsonify(MenuItem=[i.serialize for i in menuItems])
+
+
+@app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/JSON/')
+def viewMenuItemJSON(restaurant_id, menu_id):
+    menuItem = session.query(MenuItem).filter_by(id=menu_id).one()
+    return jsonify(MenuItem=menuItem.serialize)
+
 
 if __name__ == '__main__':
     app.secret_key = 'SECRETKEY'
