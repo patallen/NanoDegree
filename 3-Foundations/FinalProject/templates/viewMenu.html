@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="main">
-<h1>Menu</h1>
-<a href="{{ url_for('addMenuItem', restaurant_id=restaurant_id) }}">Add Menu Item...</a><br>
+<h2>Menu for {{ restaurant.name }}</h2>
+<a class="pull-right" href="{{ url_for('addMenuItem', restaurant_id=restaurant.id) }}">Add Menu Item...</a><br>
 {% with messages = get_flashed_messages() %}
 	{% for message in messages %}
 	{{ message }}
@@ -13,25 +12,21 @@
 You currently have no menu items.
 {% else %}
 {% for i in menuItems %}
-<div class='restaurant-block'>
-	<div class="menu-item-info">
-		<div class="item-name">
-		{{ i.name }}
-		</div>
-		<div class="item-name">
-		{{ i.price }}
-		</div>
+<div class='panel panel-default'>
+<div class='panel-heading'>
+<strong>{{ i.name }}</strong><span class="pull-right">{{ i.price }}
+</div>
+	<div class="panel-body">
 		<div class="item-name">
 		{{ i.description }}
 		</div>
+		<div class="pull-right">
+		<a class="control" href="{{ url_for('editMenuItem', restaurant_id=restaurant.id, menu_id=i.id) }}">Edit</a>
+		<a class="control" href="{{ url_for('deleteMenuItem', restaurant_id=restaurant.id, menu_id=i.id) }}">Delete</a>
+		</div>
 	</div>
-	
-	<div class="controls">	
-		<a class="control" href="{{ url_for('editMenuItem', restaurant_id=restaurant_id, menu_id=i.id) }}">Edit</a>
-		<a class="control" href="{{ url_for('deleteMenuItem', restaurant_id=restaurant_id, menu_id=i.id) }}">Delete</a>
-	</div>
+
 </div>
 {% endfor %}
 {% endif %}
-</div>
 {% endblock %}

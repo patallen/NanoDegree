@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="main">
 <h1>Restaurants</h1>
-<a href="{{ url_for('addRestaurant') }}">Add Restaurant</a></br>
+<a class="pull-right" href="{{ url_for('addRestaurant') }}">Add Restaurant...</a></br>
 {% with messages = get_flashed_messages() %}
 	{% for message in messages %}
 	{{ message }}
@@ -10,15 +9,15 @@
 	{% endfor %}
 {% endwith %}
 {% for r in restaurants %}
-<div class='restaurant-block'>
-	<div class="restaurant-name">
-		<a href="{{ url_for('viewMenu', restaurant_id=r.id) }}">{{ r.name }}</a>
-	</div>
-	<div class="controls">	
-		<a class="control" href="{{ url_for('editRestaurant', restaurant_id=r.id) }}">Edit</a>
-		<a class="control" href="{{ url_for('deleteRestaurant', restaurant_id=r.id) }}">Delete</a>
-	</div>
+<div class='panel panel-default'>
+<div class="panel-body">
+<h2><a href="{{ url_for('viewMenu', restaurant_id=r.id) }}">{{ r.name }}</a></h2>
+</div>
+<div class="panel-footer">
+<a href="{{ url_for('editRestaurant', restaurant_id=r.id) }}">Edit</a>
+<a href="{{ url_for('deleteRestaurant', restaurant_id=r.id) }}">Delete</a>
+</div>
 </div>
 {% endfor %}
-</div>
+
 {% endblock %}

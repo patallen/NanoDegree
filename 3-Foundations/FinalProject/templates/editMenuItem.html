@@ -1,12 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="main">
 <h1>Edit <em>{{ item.name }}</em></h1>
 <form action="{{ url_for('editMenuItem', restaurant_id=item.restaurant_id, menu_id=item.id) }}" method='POST'>
-	<input type="text" name="menu_item_name" value="{{ item.name }}"><br>
-	<input type="text" name="menu_item_price" value="{{ item.price }}"><br>
-	<textarea name="menu_item_desc" placeholder="{{ item.description }}">{{ item.description }}</textarea><br>
+	<div class="form-group col-sm-8">
+		<label for="menu_item_name">Menu Item Name:</label><br>
+		<input type="text" name="menu_item_name" class="form-control" value="{{ item.name }}"><br>
+	</div>
+	<div class="form-group col-sm-4">
+		<label for="menu_item_price">Price:</label>
+		<input type="text" name="menu_item_price" class="form-control" value="{{ item.price }}"><br>
+	</div>
+	<div class="form-group col-sm-12">
+		<label for="menu_item_desc">Description:</label>
+		<textarea name="menu_item_desc" class="form-control" placeholder="{{ item.description }}">{{ item.description }}</textarea><br>
+	</div>
+	<div class="form-group col-sm-6">
 	<input type="submit" value="Edit"> <a href="{{ url_for('viewRestaurants') }}">Cancel</a>
+	</div>
 </form>
-</div>
 {% endblock %}

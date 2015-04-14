@@ -1,12 +1,23 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="main">
-<h1>Add a menu item for {{ restaurant.name }}</h1>
+<h2>Add item for <em>{{ restaurant.name }}</em></h2>
 <form action="{{ url_for('addMenuItem', restaurant_id=restaurant.id) }}" method='POST'>
-	<input type="text" name="menu_item_name" placeholder="What should we call it?"><br>
-	<input type="text" name="menu_item_price" placeholder="$-.--"><br>
-	<textarea name="menu_item_desc" placeholder="This decadent delight delivers deliciousness..."></textarea><br>
-	<input type="submit" value="Create"> <a href="{{ url_for('viewRestaurants') }}">Cancel</a>
+	<div class="form-group col-sm-8">
+		<label for="menu_item_name">Menu Item Name:</label><br>
+		<input type="text" name="menu_item_name" class="form-control" placeholder="Sammy's Sammy"><br>
+	</div>
+	<div class="form-group col-sm-4">
+		<label for="menu_item_price">Price:</label>
+		<input type="text" name="menu_item_price" class="form-control" placeholder="$0.99"><br>
+	</div>
+	<div class="form-group col-sm-12">
+		<label for="menu_item_desc">Description:</label>
+		<textarea name="menu_item_desc" class="form-control" placeholder="Enter a persuasive description here..."></textarea><br>
+	</div>
+	<div class="form-group col-sm-6">
+	<input type="submit" value="Edit"> <a href="{{ url_for('viewRestaurants') }}">Cancel</a>
+	</div>
 </form>
 </div>
 {% endblock %}
