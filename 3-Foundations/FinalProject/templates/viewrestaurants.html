@@ -2,10 +2,11 @@
 {% block content %}
 <div class="main">
 <h1>Restaurants</h1>
+<a href="{{ url_for('addRestaurant') }}">Add Restaurant</a>
 {% for r in restaurants %}
 <div class='restaurant-block'>
 	<div class="restaurant-name">
-		<a href="#">{{ r.name }}</a>
+		<a href="{{ url_for('viewMenu', restaurant_id=r.id) }}">{{ r.name }}</a>
 	</div>
 	<div class="controls">	
 		<a class="control" href="{{ url_for('editRestaurant', restaurant_id=r.id) }}">Edit</a>
