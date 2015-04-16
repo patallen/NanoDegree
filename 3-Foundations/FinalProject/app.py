@@ -1,5 +1,8 @@
 from flask import Flask, render_template, request, url_for
 from flask import redirect, flash, jsonify
+
+app = Flask(__name__)
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models import Base, Restaurant, MenuItem
@@ -12,8 +15,8 @@ import json
 from flask import make_response
 
 CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
+APPLICATION_NAME="Restaurant Menu Application"
 
-app = Flask(__name__)
 
 engine = create_engine('sqlite:///restaurantmenu.db')
 Base.metadata.bind = engine
@@ -24,17 +27,21 @@ session = DBSession()
 #####################################################
 #              Routes for auth                      #
 #####################################################
-@app.route('/login/')
+@app.route('/login')
 def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
     login_session['state'] = state
-    return render_template('login.html')
+    return render_template('login.html', STATE=state)
 
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+
+    # Validate state token
     if request.args.get('state') != login_session['state']:
-        response = make_response(json.dumps('Invalid state parameter'), 401)
+        print "request.args.get('state') = %s" % request.args.get('state')
+        print "login_session['state'] = %s" % login_session['state']
+        response = make_response(json.dumps('Invalidz state parameter'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
     code = request.data
@@ -51,24 +58,30 @@ def gconnect():
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
     if result.get('error') is not None:
-        response = make_response(json.dumps(result.get('error')), 50)
+        print result.get('error')
+        response = make_response(json.dumps(result.get('error')), 500)
         response.headers['Content-Type'] = 'application/json'
     gplus_id = credentials.id_token['sub']
     if result['user_id'] != gplus_id:
         response = make_response(json.dumps("Token's user ID doesn't match given user ID"), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
+
+    # Verify that the access token is valid for this app
     if result['issued_to'] != CLIENT_ID:
         response = make_response(json.dumps("Token's client ID does not match app's."), 401)
         print "Token's client ID does not match app's."
         response.headers['Content-Type'] = 'application/json'
         return response
+
+    # Check to see if the user is already logged in
     stored_credentials = login_session.get('credentials')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_credentials is not None and gplus_id == stored_gplus_id:
         response = make_response(json.dumps('Current user is already connectd.'), 200)
         response.headers['Content-Type'] = 'application.json'
-
+    
+    # Store the access token in the session for later use
     login_session['credentials'] = credentials
     login_session['gplus_id'] = gplus_id
 
@@ -78,6 +91,20 @@ def gconnect():
     answer = requests.get(userinfo_url, params=params)
     data = json.loads(answer.text)
 
+    login_session['username'] = data["name"]
+    login_session['picture'] = data["picture"]
+    login_session['email'] = data["email"]
+
+    output = ''
+    output += '<h1>Welcome, '
+    output += login_session['username']
+    output += '!</h1>'
+    output += '<img src="'
+    output += login_session['picture']
+    output += ' " style = "width: 300px; height: 300px; border-radius: 150px;">'
+    flash("you are now logged in as %s" % login_session['username'])
+    return output
+    
 
 #####################################################
 #              Routes for restaurants               #

@@ -6,7 +6,7 @@
 {% block content %}
 <div id="signinButton">
 	<span class="g-signin"
-		data-scope="openid"
+		data-scope="openid email"
 		data-clientid="709134499185-phd5jhrr414fdr78tr4s58140cjce6h3.apps.googleusercontent.com"
 		data-redirecturi="postmessage"
 		data-accesstype="offline"
@@ -19,18 +19,19 @@
 <script>
 function signInCallback(authResult){
 	if (authResult['code']){
+		// Hide the sign-in button now that the user is authorized
 		$('#signinButton').attr('style', 'display: none');
 		
 		$.ajax({
 			type: 'POST',
-			url: '/gconnect?state={{STATE}}', 
+			url: '/gconnect?state={{ STATE }}',
 			processData: false,
 			contentType: 'application/octet-stream; charset=utf-8',
 			data: authResult['code'],
 			success: function(result) {
 				if (result) {
 					$('#result').html('Login Successful!</br>' + result + '</br>Redirecting...')
-					setTimeout(function(){ window.location.href="/restaurant";}, 4000);
+					setTimeout(function(){ window.location.href = "/restaurants";}, 4000);
 				} else if (authResult['error']){
 					console.log('There was an error: ' + authResult['error']);
 				} else {
