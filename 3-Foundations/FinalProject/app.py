@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Base, Restaurant, MenuItem
+from models import Base, Restaurant, MenuItem, User
 from flask import session as login_session
 import random, string, requests
 
@@ -18,7 +18,7 @@ CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_i
 APPLICATION_NAME="Restaurant Menu Application"
 
 
-engine = create_engine('sqlite:///restaurantmenu.db')
+engine = create_engine('sqlite:///restaurantmenuwith.db')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
@@ -27,7 +27,7 @@ session = DBSession()
 #####################################################
 #              Routes for auth                      #
 #####################################################
-@app.route('/login')
+@app.route('/login/')
 def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
     login_session['state'] = state
@@ -95,6 +95,11 @@ def gconnect():
     login_session['picture'] = data["picture"]
     login_session['email'] = data["email"]
 
+    user_id = getUserID(login_session['email'])
+    if not user_id:
+        user_id = createUser(login_session)
+    login_session['user_id'] = user_id 
+
     output = ''
     output += '<h1>Welcome, '
     output += login_session['username']
@@ -105,6 +110,33 @@ def gconnect():
     flash("you are now logged in as %s" % login_session['username'])
     return output
     
+@app.route('/gdisconnect/')
+def gdisconnect():
+    credentials = login_session.get('credentials')
+    if credentials is None:
+        response = make_response('Current user not connected.', 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    access_token = credentials.access_token
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[0]
+    if result['status'] == '200':
+        del login_session['credentials']
+        del login_session['gplus_id']
+        del login_session['username']
+        del login_session['email']
+        del login_session['picture']
+
+        response = make_response(json.dumps('Successfully disconnected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    else:
+        # For whatever reason, the given token was invalid.
+        response = make_response(json.dumps('Failed to revoke token for given user.'), 400)
+        response.headers['Content-Type'] = 'application/json'
+        return reponse
+
 
 #####################################################
 #              Routes for restaurants               #
@@ -118,8 +150,10 @@ def viewRestaurants():
 
 @app.route('/restaurant/new/', methods=['GET', 'POST'])
 def addRestaurant():
+    if 'username' not in login_session:
+        return redirect('/login')
     if request.method == 'POST':
-        newRestaurant = Restaurant(name=request.form['restaurant_name'])
+        newRestaurant = Restaurant(name=request.form['restaurant_name'], user_id=login_session['user_id'])
         session.add(newRestaurant)
         session.commit()
         flash('Restaurant created successufully')
@@ -129,6 +163,8 @@ def addRestaurant():
 
 @app.route('/restaurant/<int:restaurant_id>/edit/', methods=['GET', 'POST'])
 def editRestaurant(restaurant_id):
+    if 'username' not in login_session:
+        return redirect('/login')
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
     if request.method == 'POST':
         restaurant.name = request.form['restaurant_name']
@@ -141,6 +177,9 @@ def editRestaurant(restaurant_id):
 
 @app.route('/restaurant/<int:restaurant_id>/delete/', methods=['GET', 'POST'])
 def deleteRestaurant(restaurant_id):
+    if 'username' not in login_session:
+        return redirect('/login')
+   
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
     if request.method == 'POST':
         itemsToDelete = session.query(MenuItem).filter_by(
@@ -170,6 +209,8 @@ def viewMenu(restaurant_id):
 
 @app.route('/restaurant/<int:restaurant_id>/menu/new/', methods=['GET', 'POST'])
 def addMenuItem(restaurant_id):
+    if 'username' not in login_session:
+        return redirect('/login')
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
     if request.method == 'POST':
         item_name = request.form['menu_item_name']
@@ -177,7 +218,8 @@ def addMenuItem(restaurant_id):
         item_description = request.form['menu_item_desc']
         newmenuitem = MenuItem(name=item_name, price=item_price,
                                description=item_description,
-                               restaurant_id=restaurant_id)
+                               restaurant_id=restaurant_id,
+                               user_id=login_session['user_id'])
         session.add(newmenuitem)
         session.commit()
         flash('Menu item created successufully')
@@ -187,6 +229,8 @@ def addMenuItem(restaurant_id):
 
 @app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/edit/', methods=['GET', 'POST'])
 def editMenuItem(restaurant_id, menu_id):
+    if 'username' not in login_session:
+        return redirect('/login')
     menuItem = session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':
         menuItem.name = request.form['menu_item_name']
@@ -201,6 +245,8 @@ def editMenuItem(restaurant_id, menu_id):
 
 @app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete/', methods=['GET', 'POST'])
 def deleteMenuItem(restaurant_id, menu_id):
+    if 'username' not in login_session:
+        return redirect('/login')
     menuItem = session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':
         session.delete(menuItem)
@@ -230,6 +276,26 @@ def viewMenuJSON(restaurant_id):
 def viewMenuItemJSON(restaurant_id, menu_id):
     menuItem = session.query(MenuItem).filter_by(id=menu_id).one()
     return jsonify(MenuItem=menuItem.serialize)
+
+
+def createUser(login_session):
+    newUser = User(name = login_session['username'],
+                   email = login_session['email'], picture = login_session['picture'])
+    session.add(newUser)
+    session.commit()
+    user = session.query(User).filter_by(email = login_session['email']).one()
+    return user.id
+
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(id=user_id).one()
+    return user
+
+def getUserID(email):
+    try:
+        user = session.query(User).filter_by(email=email).one()
+        return user.id
+    except:
+        return None
 
 if __name__ == '__main__':
     app.secret_key = 'SECRETKEY'

@@ -8,10 +8,21 @@ from sqlalchemy import create_engine
 Base = declarative_base()
 
 
+class User(Base):
+    __tablename__ = 'user'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(250), nullable=False)
+    email = Column(String(250), nullable=False)
+    picture = Column(String(250))
+
+
 class Restaurant(Base):
     __tablename__ = 'restaurant'
     name = Column(String(80), nullable=False)
     id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
 
     @property
     def serialize(self):
@@ -29,7 +40,9 @@ class MenuItem(Base):
     description = Column(String(250))
     price = Column(String(8))
     restaurant_id = Column(Integer, ForeignKey('restaurant.id'))
+    user_id = Column(Integer, ForeignKey('user.id'))
     restaurant = relationship(Restaurant)
+    user = relationship(User)
 
     @property
     def serialize(self):
@@ -41,5 +54,6 @@ class MenuItem(Base):
             'course': self.course
         }
 
-engine = create_engine('sqlite:///restaurantmenu.db')
+
+engine = create_engine('sqlite:///restaurantmenuwith.db')
 Base.metadata.create_all(engine)
