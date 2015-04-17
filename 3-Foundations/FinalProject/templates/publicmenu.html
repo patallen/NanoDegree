@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Menu for {{ restaurant.name }}</h2>
+{% with messages = get_flashed_messages() %}
+	{% for message in messages %}
+	{{ message }}
+	<br>
+	{% endfor %}
+{% endwith %}
+{% if menuItems|length < 1 %}
+You currently have no menu items.
+{% else %}
+{% for i in menuItems %}
+<div class='panel panel-default'>
+<div class='panel-heading'>
+<strong>{{ i.name }}</strong><span class="pull-right">{{ i.price }}
+</div>
+	<div class="panel-body">
+		<div class="item-name">
+		{{ i.description }}
+		</div>
+	</div>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}

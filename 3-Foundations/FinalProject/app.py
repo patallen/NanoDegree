@@ -145,7 +145,7 @@ def gdisconnect():
 @app.route('/restaurants/')
 def viewRestaurants():
     restaurants = session.query(Restaurant).all()
-    return render_template('viewrestaurants.html', restaurants=restaurants)
+    return render_template('restaurants.html', restaurants=restaurants)
 
 
 @app.route('/restaurant/new/', methods=['GET', 'POST'])
@@ -204,7 +204,9 @@ def viewMenu(restaurant_id):
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
     menuItems = session.query(MenuItem).filter_by(
         restaurant_id=restaurant_id).all()
-    return render_template('viewMenu.html', restaurant=restaurant, menuItems=menuItems)
+    if restaurant.user_id != login_session['user_id']:
+        return render_template('publicmenu.html', restaurant=restaurant, menuItems=menuItems)
+    return render_template('menu.html', restaurant=restaurant, menuItems=menuItems)
 
 
 @app.route('/restaurant/<int:restaurant_id>/menu/new/', methods=['GET', 'POST'])
